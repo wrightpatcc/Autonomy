@@ -1,5 +1,5 @@
 # Autonomy
-Raw file for Engagement system flight
+Raw file for Engagement system flight. Note: View in "raw" tab setting for an easier view           ^
 
 
 from __future__ import division

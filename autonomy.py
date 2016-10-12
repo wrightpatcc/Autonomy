@@ -1,5 +1,5 @@
 # Autonomy
-Raw file for Engagement system flight. Note: View in "raw" tab setting for an easier view           ^
+#Raw file for Engagement system flight. Note: View in "raw" tab setting for an easier view           ^
 
 
 from __future__ import division
@@ -417,7 +417,8 @@ while True:
 		print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
 		#tracking(vel*trkx, vel*trky, 0, 1)	
 		#time.sleep(2)
-		
+	elif key == "p":
+		break
 	tracking(vel*trkx, vel*trky, 0, 1)
 # Ending Sim command
 sitl.stop()

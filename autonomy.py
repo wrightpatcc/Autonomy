@@ -10,6 +10,9 @@ import dronekit_sitl
 from pymavlink import mavutil
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
 import time
+import serial
+
+#All imports and global variables needed for SIM run
 global x
 global y	
 global z
@@ -27,7 +30,9 @@ correction_y = 0
 correction_z = 0
 accel = .9
 
-# ^ All imports and global variables needed for SIM run
+#Connect to XBee
+#ser = serial.Serial("com7", 9600, timeout = 0.5)
+
 
 print "Start simulator (SITL)"
 sitl = dronekit_sitl.start_default()
@@ -43,6 +48,8 @@ home_lon = float(vehicle.location.global_frame.lon)
 int(home_lon)
 home_alt = 5
 # ^ Connects SIM Drone and defines home Lat, Lon, and Alt for vehicle recovery
+
+
 
 #print "Type Latitude"
 #x=float(raw_input())
@@ -245,11 +252,183 @@ def track(heading):
 	elif vehicle.heading>345:
 		trkx = -1
 		trky = .25
-	
-	
 
+		
+#How to send data thru XBee
+def send_full_data(Name, arg1, arg2, arg3):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(.5)
+		if Name == "MANUAL":
+			vehicle.mode = VehicleMode("MANUAL")
+			incoming = ser.readline().strip()
+			if incoming == "Received":
+				return
+		time.sleep(.5)
+		incoming = ser.readline().strip()
+		if incoming == "Go":
+			print "writing arg1"
+			time.sleep(.5)
+			ser.write("%s\n" % arg1)
+			time.sleep(.5)
+			becoming = ser.readline().strip()
+			print becoming
+			if becoming == "Received arg1":
+				print "writing arg2"
+				time.sleep(.5)
+				ser.write("%s\n" % arg2)
+				time.sleep(.5)
+				#print "I got to here"
+				becoming = ser.readline().strip()
+				print becoming
+				if becoming == "Received arg2":
+					print "writing arg3"
+					time.sleep(.5)
+					ser.write("%s\n" % arg3)
+					#print "I got to here"
+					time.sleep(.5)
+					becoming = ser.readline().strip()
+					print becoming
+					if becoming == "Received arg3":
+						break
+					print "woohoo"
+					break
+		if incoming == Name:
+			print "I didn't get anything help me"
+			break
+						
+#How to receive data thru XBee			
+def rec_full_data(Name):
+	while True:
+		if ser.readline().strip() == Name:
+			time.sleep(.5)
+			print Name
+			ser.write("%s\n" % Name)
+			#Changemode settings
+			if Name == "MANUAL":
+				#vehicle.mode = VehicleMode("MANUAL")
+				print "I would change my mode now"
+				time.sleep(.5)
+				ser.write("Received\n")
+				return
+				
+			#ready for arg 1
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			if type(incoming) == str:
+				try:
+					arg1 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg1\n")
+					print "Arg1 worked!"
+					return arg1
+				except ValueError, e:
+					print "error", e
+					arg1 = " "
+			
+			#ready for arg2		
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			if type(incoming) == str:
+				try:
+					arg2 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg2\n")
+					print "Arg2 worked!"
+					return arg2
+				except ValueError, e:
+					print "error", e
+					arg2 = " "
+			
+			#ready for arg3
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			if type(incoming) == str:
+				try:
+					arg3 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg3\n")
+					print "Arg3 worked!"
+					return arg3
+				except ValueError, e:
+					print "error", e
+					arg3 = " "
+			
+			
+			return Name, arg1, arg2, arg3	
+
+#How to receive chars thru XBee
+def rec_char(Name):
+	while True:
+		if ser.readline().strip() == Name:
+			time.sleep(.5)
+			print Name
+			ser.write("%s\n" % Name)
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			if type(incoming) == str:
+				try:
+					arg1 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg1\n")
+					print "Arg1 worked!"
+					return arg1
+				except ValueError, e:
+					print "error", e
+					arg1 = " "
+			return Name, arg1
+		
+#How to send chars thru XBee
+def send_char(Name, arg1):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(.5)
+		incoming = ser.readline().strip()
+		if incoming == "Go":
+			print "writing arg1"
+			time.sleep(.5)
+			ser.write("%s\n" % arg1)
+			time.sleep(.5)
+			becoming = ser.readline().strip()
+			print becoming
+			if becoming == "Received arg1":
+				return
+		if incoming == Name:
+			print "I didn't get anything, help me!"
+			break
 #Full Action Code Starts Below
 
+
+#Get WP and enemy's WP
+"""
+while True:
+	ser.write("WP\n")
+	time.sleep(1)
+	bc = ser.readline().strip()
+	if bc == "Go":
+		[Name, x, y, z] = rec_full_data("WP")
+		break
+print "Enemy Latitude is: ", x
+print "Enemy Longitude is: ", y
+print "Enemy Altitude is: ", z
+print "Type is: ", Name
+
+while True:
+	ser.write("EnemyWP\n")
+	time.sleep(1)
+	bc = ser.readline().strip()
+	if bc == "Go":
+		[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
+		break
+print "Enemy Latitude is: ", elat
+print "Enemy Longitude is: ", elon
+print "Enemy Altitude is: ", ealt
+print "Type is: ", Name
+"""
 
 arm_and_takeoff(5)
 # ^ Arms and climbs to 5 meters	
@@ -266,7 +445,7 @@ while True:
 	int(b)
 	int(c)
 		
-	newLoc = LocationGlobal (vehicle.location.global_frame.lat+a+correction_x, vehicle.location.global_frame.lon+b+correction_y, vehicle.location.global_frame.alt+c+correction_z)
+	newLoc = LocationGlobal (vehicle.location.global_frame.lat + a + correction_x, vehicle.location.global_frame.lon + b + correction_y, vehicle.location.global_frame.alt + c + correction_z)
 	gotoGPS(newLoc)		
 	
 	print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
@@ -289,6 +468,19 @@ while True:
 #		Hdg = math.degrees(Bearing)
 #		conditionyaw(Hdg)
 #######the above is the distance formula for two points, used to know and turn in the direction of tgt A/C
+	"""
+	while True:
+		ser.write("EnemyWP\n")
+		time.sleep(1)
+		bc = ser.readline().strip()
+		if bc == "Go":
+			[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
+			break
+	print "Enemy Latitude is: ", elat
+	print "Enemy Longitude is: ", elon
+	print "Enemy Altitude is: ", ealt
+	print "Type is: ", Name
+	"""
 	print "Do you see the threat? Y/N?"
 	key=msvcrt.getch()
 	if key == "Y" or key == "y":
@@ -315,6 +507,7 @@ while True:
 		break
 	
 	else:# Can't find target and gets updated coords
+		
 		print "Type Latitude"
 		x=float(raw_input())
 		int(x)
@@ -324,6 +517,19 @@ while True:
 		print "Type Altitude"
 		z=float(raw_input())
 		int(z)
+		"""
+		while True:
+			ser.write("WP\n")
+			time.sleep(1)
+			bc = ser.readline().strip()
+			if bc == "Go":
+				[Name, x, y, z] = rec_full_data("WP")
+				break
+		print "Enemy Latitude is: ", x
+		print "Enemy Longitude is: ", y
+		print "Enemy Altitude is: ", z
+		print "Type is: ", Name
+		"""
 		
 print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)	
 print " Heading: {}".format(vehicle.heading)
@@ -337,8 +543,18 @@ while True:
 	global accel
 	#time.sleep(3)
 	#time.sleep(3)
-	print "Type Key"
+	print "Key"
 	key=msvcrt.getch() # This command may be moved to the bottom of the while statement since we already get one command prior to the ask here
+	"""
+	while True:
+			ser.write("Key\n")
+			time.sleep(1)
+			bc = ser.readline().strip()
+			if bc == "Go":
+				[Name, key] = rec_char("Key")
+				break
+	print key
+	"""
 	yaw = vehicle.heading
 	heading = vehicle.heading
 	d1 = 10# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
@@ -417,6 +633,7 @@ while True:
 		print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
 		#tracking(vel*trkx, vel*trky, 0, 1)	
 		#time.sleep(2)
+	
 	elif key == "p":
 		break
 	tracking(vel*trkx, vel*trky, 0, 1)

@@ -1,0 +1,172 @@
+import serial
+import time
+import socket
+
+ser = serial.Serial('com7', 9600, timeout = 0.5)
+
+def send_full_data(Name, arg1, arg2, arg3):
+	while True:
+		ser.write("%s\n" % Name)
+		print Name
+		time.sleep(.5)
+		incoming = ser.readline().strip()
+		if incoming == "Go":
+			print "writing arg1"
+			time.sleep(.5)
+			ser.write("%s\n" % arg1)
+			time.sleep(.5)
+			becoming = ser.readline().strip()
+			print becoming
+			if becoming == "Received arg1":
+				print "writing arg2"
+				time.sleep(.5)
+				ser.write("%s\n" % arg2)
+				time.sleep(.5)
+				#print "I got to here"
+				becoming = ser.readline().strip()
+				print becoming
+				if becoming == "Received arg2":
+					print "writing arg3"
+					time.sleep(.5)
+					ser.write("%s\n" % arg3)
+					#print "I got to here"
+					time.sleep(.5)
+					becoming = ser.readline().strip()
+					print becoming
+					if becoming == "Received arg3":
+						break
+					print "woohoo"
+					break
+
+			
+def rec_full_data(Name):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(1)
+		if ser.readline().strip() == Name:
+			time.sleep(.5)
+			ser.write("Go\n")
+			print "ready for arg1"
+			time.sleep(1)
+			incoming = ser.readline().strip()
+			while True:
+				try:
+					arg1 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg1\n")
+					print "Arg1 worked!"
+					break
+				except ValueError, e:
+					print "error", e
+					time.sleep(1)
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
+	
+			#ready for arg2		
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			while True:
+				try:
+					arg2 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg2\n")
+					print "Arg2 worked!"
+					break
+				except ValueError, e:
+					print "error", e
+					time.sleep(1)
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
+
+			#ready for arg3
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			while True:
+				try:
+					arg3 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg3\n")
+					print "Arg3 worked!"
+					break
+				except ValueError, e:
+					print "error", e
+					time.sleep(1)
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
+			return Name, arg1, arg2, arg3
+
+#How to receive chars thru XBee
+def rec_key(Name):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(1)
+		if ser.readline().strip() == Name:
+			time.sleep(.5)
+			print Name
+			ser.write("Go\n")
+			print "ready for arg1"
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print "incoming is: %s" % incoming
+			while True:
+				if incoming == Name:
+					time.sleep(.5)
+					print "still failing"
+					bc = ser.readline().strip()
+					if bc != Name:
+						arg1 = bc
+						print "got it"
+						ser.write("Received arg1\n")
+						break
+				else:
+					arg1 = incoming
+					print "got it"
+					ser.write("Received arg1\n")
+					break
+			return Name, arg1
+		
+#How to send chars thru XBee
+def send_key(Name, arg1):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(.5)
+		incoming = ser.readline().strip()
+		print "waiting for GO"
+		if incoming == "Go":
+			print "writing arg1"
+			time.sleep(.5)
+			while True:
+				ser.write("%s\n" % arg1)
+				print "wrote"
+				time.sleep(.5)
+				becoming = ser.readline().strip()
+				print "becoming is: %s" % becoming
+				if becoming == "Received arg1":
+					return		
+
+
+while True:
+	incoming = ser.readline().strip()
+	print "incoming is: %s" % incoming
+	if incoming == "WP":
+		time.sleep(.5)
+		send_full_data("WP", 40, -80, 20)
+	elif incoming == "EnemyWP":
+		time.sleep(.5)
+		send_full_data("EnemyWP", 40, -80, 0)
+	elif incoming == "key":
+		time.sleep(.5)
+		print "Type Key Now"
+		key = raw_input()
+		send_key("key", key)
+	elif incoming == "Threat Seen Y/N?":
+		print "Type Y/N"
+		time.sleep(.5)
+		key = raw_input()
+		print key
+		send_key("Threat Seen Y/N?", key)
+	
+
+ser.close()

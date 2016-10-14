@@ -110,7 +110,7 @@ def gotoGPS(location):
 	global correction_x
 	global correction_y
 	global correction_z
-	vehicle.simple_goto(location, groundspeed=20)
+	vehicle.simple_goto(location)
 
 #Sends vehicle home
 def gotoHome(location):
@@ -310,15 +310,10 @@ def killingjoke():
 	#		Hdg = math.degrees(Bearing)
 	#		conditionyaw(Hdg)
 	#######the above is the distance formula for two points, used to know and turn in the direction of tgt A/C, this happens initially and when pilot keys that threat is not seen
-
+		
+		#Need to uncomment
 		"""
-		while True:
-			ser.write("EnemyWP\n")
-			time.sleep(1)
-			bc = ser.readline().strip()
-			if bc == "Go":
-				[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
-				break
+		[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
 		print "Enemy Latitude is: ", elat
 		print "Enemy Longitude is: ", elon
 		print "Enemy Altitude is: ", ealt
@@ -329,6 +324,14 @@ def killingjoke():
 	##Will ask user if a threat is identified; if not, will update coords and try again, otherwise will switch to manual	
 		print "Do you see the threat? Y/N?"
 		key=msvcrt.getch()
+		#uncomment for XBee
+		"""
+		print "Do you see the threat Y/N"
+		while True:
+			[Name, key] = rec_char("Threat Seen Y/N?")
+			break
+		print "key is %s" % key
+		"""
 		if key == "Y" or key == "y":
 			d1 = 10# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
 			#get coords of tgt drone
@@ -363,13 +366,7 @@ def killingjoke():
 			z=float(raw_input())
 			int(z)
 			"""
-			while True:
-				ser.write("WP\n")
-				time.sleep(1)
-				bc = ser.readline().strip()
-				if bc == "Go":
-					[Name, x, y, z] = rec_full_data("WP")
-					break
+			[Name, x, y, z] = rec_full_data("WP")
 			print "Enemy Latitude is: ", x
 			print "Enemy Longitude is: ", y
 			print "Enemy Altitude is: ", z
@@ -389,14 +386,11 @@ def killingjoke():
 		print "Key"
 		key=msvcrt.getch() # This command may be moved to the bottom of the while statement since we already get one command prior to the ask here
 		"""
+		print "Key"
 		while True:
-				ser.write("Key\n")
-				time.sleep(1)
-				bc = ser.readline().strip()
-				if bc == "Go":
-					[Name, key] = rec_char("Key")
-					break
-		print key
+			[Name, key] = rec_char("key")
+			break
+		print "key is %s" % key
 		"""
 		yaw = vehicle.heading
 		heading = vehicle.heading
@@ -484,25 +478,15 @@ def killingjoke():
 		elif key == "k":
 			#Get WP and enemy's WP
 			"""
-			while True:
-				ser.write("WP\n")
-				time.sleep(1)
-				bc = ser.readline().strip()
-				if bc == "Go":
-					[Name, x, y, z] = rec_full_data("WP")
-					break
+			
+			[Name, x, y, z] = rec_full_data("WP")
 			print "Enemy Latitude is: ", x
 			print "Enemy Longitude is: ", y
 			print "Enemy Altitude is: ", z
 			print "Type is: ", Name
 			 
-			while True:
-				ser.write("EnemyWP\n")
-				time.sleep(1)
-				bc = ser.readline().strip()
-				if bc == "Go":
-					[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
-					break
+			
+			[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
 			print "Enemy Latitude is: ", elat
 			print "Enemy Longitude is: ", elon
 			print "Enemy Altitude is: ", ealt
@@ -531,7 +515,7 @@ def killingjoke():
 			gotoGPS(newLoc)
 			print "Engaging!"
 			#tracking(vel*trkx, vel*trky, 0, 1)
-			break
+			return
 			
 			
 			
@@ -542,148 +526,142 @@ def killingjoke():
 def send_full_data(Name, arg1, arg2, arg3):
 	while True:
 		ser.write("%s\n" % Name)
+		print Name
 		time.sleep(.5)
-		if Name == "MANUAL":
-			vehicle.mode = VehicleMode("MANUAL")
-			incoming = ser.readline().strip()
-			if incoming == "Received":
- 				return
- 		time.sleep(.5)
- 		incoming = ser.readline().strip()
- 		if incoming == "Go":
- 			print "writing arg1"
- 			time.sleep(.5)
- 			ser.write("%s\n" % arg1)
- 			time.sleep(.5)
- 			becoming = ser.readline().strip()
- 			print becoming
- 			if becoming == "Received arg1":
- 				print "writing arg2"
- 				time.sleep(.5)
- 				ser.write("%s\n" % arg2)
- 				time.sleep(.5)
- 				#print "I got to here"
- 				becoming = ser.readline().strip()
- 				print becoming
- 				if becoming == "Received arg2":
- 					print "writing arg3"
- 					time.sleep(.5)
- 					ser.write("%s\n" % arg3)
- 					#print "I got to here"
- 					time.sleep(.5)
- 					becoming = ser.readline().strip()
- 					print becoming
- 					if becoming == "Received arg3":
- 						break
- 					print "woohoo"
- 					break
- 		if incoming == Name:
- 			print "I didn't get anything help me"
- 			break
+		incoming = ser.readline().strip()
+		if incoming == "Go":
+			print "writing arg1"
+			time.sleep(.5)
+			ser.write("%s\n" % arg1)
+			time.sleep(.5)
+			becoming = ser.readline().strip()
+			print becoming
+			if becoming == "Received arg1":
+				print "writing arg2"
+				time.sleep(.5)
+				ser.write("%s\n" % arg2)
+				time.sleep(.5)
+				#print "I got to here"
+				becoming = ser.readline().strip()
+				print becoming
+				if becoming == "Received arg2":
+					print "writing arg3"
+					time.sleep(.5)
+					ser.write("%s\n" % arg3)
+					#print "I got to here"
+					time.sleep(.5)
+					becoming = ser.readline().strip()
+					print becoming
+					if becoming == "Received arg3":
+						break
+					print "woohoo"
+					break
  						
 #How to receive data thru XBee			
 def rec_full_data(Name):
- 	while True:
- 		if ser.readline().strip() == Name:
- 			time.sleep(.5)
- 			print Name
- 			ser.write("%s\n" % Name)
- 			#Changemode settings
- 			if Name == "MANUAL":
- 				#vehicle.mode = VehicleMode("MANUAL")
- 				print "I would change my mode now"
- 				time.sleep(.5)
- 				ser.write("Received\n")
- 				return
- 				
- 			#ready for arg 1
- 			time.sleep(.5)
- 			incoming = ser.readline().strip()
- 			print incoming
- 			if type(incoming) == str:
- 				try:
- 					arg1 = float(incoming)
- 					time.sleep(.5)
- 					ser.write("Received arg1\n")
- 					print "Arg1 worked!"
- 					return arg1
- 				except ValueError, e:
- 					print "error", e
- 					arg1 = " "
- 			
- 			#ready for arg2		
- 			time.sleep(.5)
- 			incoming = ser.readline().strip()
- 			print incoming
- 			if type(incoming) == str:
- 				try:
- 					arg2 = float(incoming)
- 					time.sleep(.5)
- 					ser.write("Received arg2\n")
- 					print "Arg2 worked!"
- 					return arg2
- 				except ValueError, e:
- 					print "error", e
- 					arg2 = " "
- 			
- 			#ready for arg3
- 			time.sleep(.5)
- 			incoming = ser.readline().strip()
- 			print incoming
- 			if type(incoming) == str:
- 				try:
- 					arg3 = float(incoming)
- 					time.sleep(.5)
- 					ser.write("Received arg3\n")
- 					print "Arg3 worked!"
- 					return arg3
- 				except ValueError, e:
- 					print "error", e
- 					arg3 = " "
- 			
- 			
- 			return Name, arg1, arg2, arg3	
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(1)
+		if ser.readline().strip() == Name:
+			time.sleep(.5)
+			ser.write("Go\n")
+			print "ready for arg1"
+			time.sleep(1)
+			incoming = ser.readline().strip()
+			while True:
+				try:
+					arg1 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg1\n")
+					print "Arg1 worked!"
+					break
+				except ValueError, e:
+					print "error", e
+					time.sleep(1)
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
+	
+			#ready for arg2		
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			while True:
+				try:
+					arg2 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg2\n")
+					print "Arg2 worked!"
+					break
+				except ValueError, e:
+					print "error", e
+					time.sleep(1)
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
+
+			#ready for arg3
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print incoming
+			while True:
+				try:
+					arg3 = float(incoming)
+					time.sleep(.5)
+					ser.write("Received arg3\n")
+					print "Arg3 worked!"
+					break
+				except ValueError, e:
+					print "error", e
+					time.sleep(1)
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
+			return Name, arg1, arg2, arg3
  
 #How to receive chars thru XBee
-def rec_char(Name):
- 	while True:
- 		if ser.readline().strip() == Name:
- 			time.sleep(.5)
- 			print Name
- 			ser.write("%s\n" % Name)
- 			time.sleep(.5)
- 			incoming = ser.readline().strip()
- 			print incoming
- 			if type(incoming) == str:
- 				try:
- 					arg1 = float(incoming)
- 					time.sleep(.5)
- 					ser.write("Received arg1\n")
- 					print "Arg1 worked!"
- 					return arg1
- 				except ValueError, e:
- 					print "error", e
- 					arg1 = " "
- 			return Name, arg1
+def rec_key(Name):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(1)
+		if ser.readline().strip() == Name:
+			time.sleep(.5)
+			print Name
+			ser.write("Go\n")
+			print "ready for arg1"
+			time.sleep(.5)
+			incoming = ser.readline().strip()
+			print "incoming is: %s" % incoming
+			while True:
+				if incoming == Name:
+					print "still failing"
+					bc = ser.readline().strip()
+					if bc != Name:
+						arg1 = bc
+						print "got it"
+						ser.write("Received arg1\n")
+						break
+				else:
+					arg1 = incoming
+					print "got it"
+					ser.write("Received arg1\n")
+					break
+			return Name, arg1
  		
 #How to send chars thru XBee
-def send_char(Name, arg1):
- 	while True:
- 		ser.write("%s\n" % Name)
- 		time.sleep(.5)
- 		incoming = ser.readline().strip()
- 		if incoming == "Go":
- 			print "writing arg1"
- 			time.sleep(.5)
- 			ser.write("%s\n" % arg1)
- 			time.sleep(.5)
- 			becoming = ser.readline().strip()
- 			print becoming
- 			if becoming == "Received arg1":
- 				return
- 		if incoming == Name:
- 			print "I didn't get anything, help me!"
- 			break	
+def send_key(Name, arg1):
+	while True:
+		ser.write("%s\n" % Name)
+		time.sleep(.5)
+		incoming = ser.readline().strip()
+		if incoming == "Go":
+			print "writing arg1"
+			time.sleep(.5)
+			while True:
+				ser.write("%s\n" % arg1)
+				print "wrote"
+				time.sleep(.5)
+				becoming = ser.readline().strip()
+				print "becoming is: %s" % becoming
+				if becoming == "Received arg1":
+					return
 	
 #############################################
 ##########Start up code for real test########
@@ -693,8 +671,8 @@ def send_char(Name, arg1):
 #print "Connecting..."
 
 #Connect through Cord
-#vehicle = connect('COM4', wait_ready=True) 
-#vehicle = connect(dev/ttyAMA0, 57600, wait_ready=True) #Connected via RPi
+#vehicle = connect('com4', wait_ready=True) 
+#vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
 #time.sleep(2)
 #print "Autopilot Firmware version: %s" % vehicle.version
 #############################################
@@ -703,25 +681,16 @@ print " Current-Location: Lat:%s, Lon:%s, Alt: %s" % (vehicle.location.global_fr
 #############################################
 #Get WP and enemy's WP
 """
-while True:
-	ser.write("WP\n")
-	time.sleep(1)
-	bc = ser.readline().strip()
-	if bc == "Go":
-		[Name, x, y, z] = rec_full_data("WP")
-		break
+
+[Name, x, y, z] = rec_full_data("WP")
+
 print "Enemy Latitude is: ", x
 print "Enemy Longitude is: ", y
 print "Enemy Altitude is: ", z
 print "Type is: ", Name
- 
-while True:
-	ser.write("EnemyWP\n")
-	time.sleep(1)
-	bc = ser.readline().strip()
-	if bc == "Go":
-		[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
-		break
+
+[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
+
 print "Enemy Latitude is: ", elat
 print "Enemy Longitude is: ", elon
 print "Enemy Altitude is: ", ealt
@@ -792,7 +761,7 @@ while count>0:
 	time.sleep(1.5)
 	
 ##Shuts drone down	
-vehicle.armed = False
+#vehicle.armed = False
 print "Disarmed"
 time.sleep(3)
 print "Done"

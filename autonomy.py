@@ -51,6 +51,21 @@ accel = .9
 #vehicle = connect(connection_string, wait_ready=True)
 
 ##########################################
+
+#############################################
+##########Start up code for real test########
+##Connect to XBee
+#ser = serial.Serial('com7', 9600, timeout = 0.5)
+#ser = serial.Serial('/dev/ttyUSB1', 9600, timeout = 0.5)
+#print "Connecting..."
+
+#Connect through Cord
+#vehicle = connect('com4', wait_ready=True) 
+#vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
+#time.sleep(2)
+#print "Autopilot Firmware version: %s" % vehicle.version
+#############################################
+
 ## Functions 
 
 #Arms and rises to given Altitude
@@ -668,19 +683,7 @@ def send_key(Name, arg1):
 				if becoming == "Received arg1":
 					return
 	
-#############################################
-##########Start up code for real test########
-##Connect to XBee
-#ser = serial.Serial('com7', 9600, timeout = 0.5)
-#ser = serial.Serial('/dev/ttyUSB1', 9600, timeout = 0.5)
-#print "Connecting..."
 
-#Connect through Cord
-#vehicle = connect('com4', wait_ready=True) 
-#vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
-#time.sleep(2)
-#print "Autopilot Firmware version: %s" % vehicle.version
-#############################################
 
 print " Current-Location: Lat:%s, Lon:%s, Alt: %s" % (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt)
 #############################################

@@ -14,7 +14,7 @@
 from __future__ import division
 import math
 import datetime
-import msvcrt
+#import msvcrt
 import dronekit_sitl
 from pymavlink import mavutil
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
@@ -368,9 +368,9 @@ def killingjoke():
 			int(z)
 			"""
 			[Name, x, y, z] = rec_full_data("WP")
-			print "Enemy Latitude is: ", x
-			print "Enemy Longitude is: ", y
-			print "Enemy Altitude is: ", z
+			print "Latitude is: ", x
+			print "Longitude is: ", y
+			print "Altitude is: ", z
 			print "Type is: ", Name
 			
 	print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)	
@@ -481,9 +481,9 @@ def killingjoke():
 			
 			
 			[Name, x, y, z] = rec_full_data("WP")
-			print "Enemy Latitude is: ", x
-			print "Enemy Longitude is: ", y
-			print "Enemy Altitude is: ", z
+			print "Latitude is: ", x
+			print "Longitude is: ", y
+			print "Altitude is: ", z
 			print "Type is: ", Name
 			 
 			
@@ -572,6 +572,8 @@ def rec_full_data(Name):
 			incoming = ser.readline().strip()
 			while True:
 				try:
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
 					arg1 = float(incoming)
 					time.sleep(.5)
 					ser.write("Received arg1\n")
@@ -580,8 +582,7 @@ def rec_full_data(Name):
 				except ValueError, e:
 					print "error", e
 					time.sleep(1)
-					incoming = ser.readline().strip()
-					print "incoming is: %s" % incoming
+					
 	
 			#ready for arg2		
 			time.sleep(.5)
@@ -589,6 +590,8 @@ def rec_full_data(Name):
 			print incoming
 			while True:
 				try:
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
 					arg2 = float(incoming)
 					time.sleep(.5)
 					ser.write("Received arg2\n")
@@ -597,8 +600,7 @@ def rec_full_data(Name):
 				except ValueError, e:
 					print "error", e
 					time.sleep(1)
-					incoming = ser.readline().strip()
-					print "incoming is: %s" % incoming
+					
 
 			#ready for arg3
 			time.sleep(.5)
@@ -606,6 +608,8 @@ def rec_full_data(Name):
 			print incoming
 			while True:
 				try:
+					incoming = ser.readline().strip()
+					print "incoming is: %s" % incoming
 					arg3 = float(incoming)
 					time.sleep(.5)
 					ser.write("Received arg3\n")
@@ -614,8 +618,7 @@ def rec_full_data(Name):
 				except ValueError, e:
 					print "error", e
 					time.sleep(1)
-					incoming = ser.readline().strip()
-					print "incoming is: %s" % incoming
+					
 			return Name, arg1, arg2, arg3
  
 #How to receive chars thru XBee
@@ -669,12 +672,12 @@ def send_key(Name, arg1):
 ##########Start up code for real test########
 ##Connect to XBee
 #ser = serial.Serial('com7', 9600, timeout = 0.5)
-#ser = serial.Serial('/dev/ttyUSB0', 9600, timeout = 0.5)
+#ser = serial.Serial('/dev/ttyUSB1', 9600, timeout = 0.5)
 #print "Connecting..."
 
 #Connect through Cord
 #vehicle = connect('com4', wait_ready=True) 
-#vehicle = connect("/dev/ttyUSB1", wait_ready=True, 57600) #Connected via RPi
+#vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
 #time.sleep(2)
 #print "Autopilot Firmware version: %s" % vehicle.version
 #############################################
@@ -686,9 +689,9 @@ print " Current-Location: Lat:%s, Lon:%s, Alt: %s" % (vehicle.location.global_fr
 
 [Name, x, y, z] = rec_full_data("WP")
 
-print "Enemy Latitude is: ", x
-print "Enemy Longitude is: ", y
-print "Enemy Altitude is: ", z
+print "Latitude is: ", x
+print "Longitude is: ", y
+print "Altitude is: ", z
 print "Type is: ", Name
 
 [Name, elat, elon, ealt] = rec_full_data("EnemyWP")

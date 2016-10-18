@@ -44,11 +44,11 @@ accel = .9
 
 ##########################################
 ####Boots Simulator
-print "Start simulator (SITL)"
-sitl = dronekit_sitl.start_default()
-connection_string = sitl.connection_string()
-print("Connecting to vehicle on: %s" % (connection_string,))
-vehicle = connect(connection_string, wait_ready=True)
+#print "Start simulator (SITL)"
+#sitl = dronekit_sitl.start_default()
+#connection_string = sitl.connection_string()
+#print("Connecting to vehicle on: %s" % (connection_string,))
+#vehicle = connect(connection_string, wait_ready=True)
 
 ##########################################
 ## Functions 
@@ -323,15 +323,15 @@ def killingjoke():
 
 	##Will ask user if a threat is identified; if not, will update coords and try again, otherwise will switch to manual	
 		print "Do you see the threat? Y/N?"
-		key=msvcrt.getch()
+		#key=msvcrt.getch()
 		#uncomment for XBee
-		"""
+		
 		print "Do you see the threat Y/N"
 		while True:
 			[Name, key] = rec_char("Threat Seen Y/N?")
 			break
 		print "key is %s" % key
-		"""
+		
 		if key == "Y" or key == "y":
 			d1 = 10# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
 			#get coords of tgt drone
@@ -356,6 +356,7 @@ def killingjoke():
 			break
 		
 		else:# Can't find target and gets updated coords
+			"""
 			print "Type Latitude"
 			x=float(raw_input())
 			int(x)
@@ -371,7 +372,7 @@ def killingjoke():
 			print "Enemy Longitude is: ", y
 			print "Enemy Altitude is: ", z
 			print "Type is: ", Name
-			"""
+			
 	print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)	
 	print " Heading: {}".format(vehicle.heading)
 
@@ -384,14 +385,14 @@ def killingjoke():
 		#time.sleep(3)
 		#time.sleep(3)
 		print "Key"
-		key=msvcrt.getch() # This command may be moved to the bottom of the while statement since we already get one command prior to the ask here
-		"""
+		#key=msvcrt.getch() # This command may be moved to the bottom of the while statement since we already get one command prior to the ask here
+		
 		print "Key"
 		while True:
 			[Name, key] = rec_char("key")
 			break
 		print "key is %s" % key
-		"""
+		
 		yaw = vehicle.heading
 		heading = vehicle.heading
 		d1 = 10# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
@@ -477,7 +478,7 @@ def killingjoke():
 		
 		elif key == "k":
 			#Get WP and enemy's WP
-			"""
+			
 			
 			[Name, x, y, z] = rec_full_data("WP")
 			print "Enemy Latitude is: ", x
@@ -491,8 +492,8 @@ def killingjoke():
 			print "Enemy Longitude is: ", elon
 			print "Enemy Altitude is: ", ealt
 			print "Type is: ", Name
+			
 			"""
-
 			#print "Type Latitude"
 			#x=float(raw_input())
 			x=-35.3640
@@ -505,6 +506,7 @@ def killingjoke():
 			#z=float(raw_input())
 			z=7
 			#int(z)
+			"""
 			killingjoke()
 			break
 		
@@ -680,7 +682,7 @@ def send_key(Name, arg1):
 print " Current-Location: Lat:%s, Lon:%s, Alt: %s" % (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt)
 #############################################
 #Get WP and enemy's WP
-"""
+
 
 [Name, x, y, z] = rec_full_data("WP")
 
@@ -709,7 +711,7 @@ y=149.16522
 #z=float(raw_input())
 z=7
 #int(z)
-
+"""
 
 ##############################
 ##Sets home point coordinates
@@ -770,4 +772,4 @@ time.sleep(2)
 vehicle.close()	
 	
 ##Ending Sim command
-sitl.stop()
+#sitl.stop()

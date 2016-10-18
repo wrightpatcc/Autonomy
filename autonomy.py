@@ -667,12 +667,12 @@ def send_key(Name, arg1):
 ##########Start up code for real test########
 ##Connect to XBee
 #ser = serial.Serial('com7', 9600, timeout = 0.5)
-
+#ser = serial.Serial('/dev/ttyUSB0', 9600, timeout = 0.5)
 #print "Connecting..."
 
 #Connect through Cord
 #vehicle = connect('com4', wait_ready=True) 
-#vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
+#vehicle = connect("/dev/ttyUSB1", wait_ready=True, 57600) #Connected via RPi
 #time.sleep(2)
 #print "Autopilot Firmware version: %s" % vehicle.version
 #############################################

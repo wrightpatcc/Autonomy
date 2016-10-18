@@ -3,6 +3,13 @@ import time
 import socket
 
 ser = serial.Serial('com7', 9600, timeout = 0.5)
+UDP_IP = "10.6.3.3"
+UDP_PORT = 5005
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((UDP_IP, UDP_PORT))
+
+
 
 def send_full_data(Name, arg1, arg2, arg3):
 	while True:
@@ -148,14 +155,23 @@ def send_key(Name, arg1):
 
 
 while True:
+	data, addr = sock.recvfrom(1024)
+	lat,lon,alt,elat,elon,ealt = data.split(",")
+	print "received message: ", data
+	lat = float(lat)
+	lon = float(lon)
+	alt = float(alt)
+	elat = float(elat)
+	elon = float(elon)
+	ealt = float(ealt)	
 	incoming = ser.readline().strip()
 	print "incoming is: %s" % incoming
 	if incoming == "WP":
 		time.sleep(.5)
-		send_full_data("WP", 40, -80, 20)
+		send_full_data("WP", lat, lon, alt)
 	elif incoming == "EnemyWP":
 		time.sleep(.5)
-		send_full_data("EnemyWP", 40, -80, 0)
+		send_full_data("EnemyWP", elat, elon, ealt)
 	elif incoming == "key":
 		time.sleep(.5)
 		print "Type Key Now"
@@ -167,6 +183,7 @@ while True:
 		key = raw_input()
 		print key
 		send_key("Threat Seen Y/N?", key)
+
 	
 
 ser.close()

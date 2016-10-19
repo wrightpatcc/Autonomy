@@ -76,17 +76,18 @@ def arm_and_takeoff(aTargetAltitude):
 
     print "Basic pre-arm checks"
     # Don't try to arm until autopilot is ready
-    while not vehicle.is_armable:
-        print " Waiting for vehicle to initialise..."
-        time.sleep(1)
+    #while not vehicle.is_armable:
+        #print " Waiting for vehicle to initialise..."
+        #time.sleep(1)
 
     print "Arming motors"
     # Copter should arm in GUIDED mode
     vehicle.mode    = VehicleMode("GUIDED")
-    vehicle.armed   = True
+    #vehicle.armed   = True
 	# Confirm vehicle armed before attempting to take off
     while not vehicle.armed:
         print " Waiting for arming..."
+	ser.write("Waiting for arming\n")
         time.sleep(1)
 
     print "Taking off!"

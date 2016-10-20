@@ -20,6 +20,8 @@ from pymavlink import mavutil
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
 import time
 import serial
+import RPi.GPIO as gpio
+
 
 #####################################
 ## Global Variables and initial values
@@ -42,6 +44,11 @@ correction_y = 0
 correction_z = 0
 accel = .9
 
+#GPIO Setup
+LEDPin = 7
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(LEDPin, GPIO.OUT)
+pwm = GPIO.PWM(LEDPin, 50)
 ##########################################
 ####Boots Simulator
 #print "Start simulator (SITL)"
@@ -533,8 +540,12 @@ def killingjoke():
 			gotoGPS(newLoc)
 			print "Engaging!"
 			#tracking(vel*trkx, vel*trky, 0, 1)
-			return
-			
+			break
+		elif key == "n":
+			pwm.start(10)
+			time.sleep(10)
+			pwm.stop
+			break
 			
 			
 		tracking(vel*trkx, vel*trky, 0, 1)
@@ -775,7 +786,7 @@ print "Disarmed"
 time.sleep(3)
 print "Done"
 time.sleep(2)
-
+GPIO.cleanup()
 vehicle.close()	
 	
 ##Ending Sim command

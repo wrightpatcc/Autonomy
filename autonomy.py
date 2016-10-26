@@ -326,8 +326,8 @@ def killingjoke():
 	#######Change, above to get tgt coords
 	#		La = vehicle.location.global_relative_frame.lat
 	#		la = vehicle.location.global_relative_frame.lon
-	#		Lb = tgtx
-	#		lb = tgty
+	#		Lb = elat
+	#		lb = elon
 	#		U = math.cos(math.radians(Lb))*math.sin(math.radians(lb-la))
 	#		T = math.cos(math.radians(La))*math.sin(math.radians(Lb))-math.sin(math.radians(La))*math.cos(math.radians(Lb))*math.cos(math.radians(lb-la))
 	#		Bearing = math.atan2(U,T)
@@ -357,11 +357,11 @@ def killingjoke():
 		print "key is %s" % key
 		
 		if key == "Y" or key == "y":
-			d1 = 10# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
+			d1 = 10# <-- replace value with -> math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2))
 			#get coords of tgt drone
 			start = time.time()
 			time.sleep(1)
-			d2 = 15# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
+			d2 = 15# <-- replace value with -> math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2))
 			#get updated coords of tgt drone
 			end = time.time()
 			tgt = d2 - d1
@@ -402,8 +402,9 @@ def killingjoke():
 
 	##This loop is for manual/keypad flying, engagement, and capture
 	while True:
-		global tgtx
-		global tgty
+		global elat
+		global elon
+		global ealt
 		global yaw
 		global turn
 		#time.sleep(3)
@@ -419,11 +420,11 @@ def killingjoke():
 		
 		yaw = vehicle.heading
 		heading = vehicle.heading
-		d1 = 10# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
+		d1 = 10# <-- replace value with -> math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2))
 		#get coords of tgt drone
 		start = time.time()
 		time.sleep(1)
-		d2 = 11# <-- replace value with -> math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))
+		d2 = 11# <-- replace value with -> math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2))
 		#get updated coords of tgt drone
 		end = time.time()
 		tgt = d2 - d1
@@ -431,10 +432,10 @@ def killingjoke():
 		turn = 25
 		
 		
-		#if math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))<10 and math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))>5:
+		#if math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2))<10 and math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))>5:
 			#turn = 15
 			#time = 1
-		#elif math.sqrt(((tgtx*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*tgty)-((100000*vehicle.location.global_relative_frame.lon)))**2+(tgtz-(vehicle.location.global_relative_frame.alt))**2))<5:
+		#elif math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2))<5:
 			#turn = 5
 			#time = .5
 		if key == "a": #Change key so that the value here represents the degrees to yaw ex. key -1 is 1 degree left while (+)2 is 2 degrees right

@@ -50,7 +50,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(LEDPin, GPIO.OUT)
 pwm = GPIO.PWM(LEDPin, 50)
 ##########################################
-####Boots Simulator
+##########Boots Simulator#################
 #print "Start simulator (SITL)"
 #sitl = dronekit_sitl.start_default()
 #connection_string = sitl.connection_string()
@@ -66,7 +66,8 @@ pwm = GPIO.PWM(LEDPin, 50)
 #ser = serial.Serial('/dev/ttyUSB1', 9600, timeout = 0.5)
 #print "Connecting..."
 
-#Connect through Cord
+#############################################
+##########Connect through Cord###############
 #vehicle = connect('com4', wait_ready=True) 
 #vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
 #time.sleep(2)
@@ -83,14 +84,14 @@ def arm_and_takeoff(aTargetAltitude):
 
     print "Basic pre-arm checks"
     # Don't try to arm until autopilot is ready
-    #while not vehicle.is_armable:
-        #print " Waiting for vehicle to initialise..."
-        #time.sleep(1)
+    while not vehicle.is_armable:
+        print " Waiting for vehicle to initialise..."
+        time.sleep(1)
 
     print "Arming motors"
     # Copter should arm in GUIDED mode
     vehicle.mode    = VehicleMode("GUIDED")
-    #vehicle.armed   = True
+    vehicle.armed   = True
 	# Confirm vehicle armed before attempting to take off
     while not vehicle.armed:
         print " Waiting for arming..."

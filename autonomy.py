@@ -86,6 +86,7 @@ def arm_and_takeoff(aTargetAltitude):
     # Don't try to arm until autopilot is ready
     while not vehicle.is_armable:
         print " Waiting for vehicle to initialise..."
+	ser.write("Waiting for vehicle to initialise\n")
         time.sleep(1)
 
     print "Arming motors"
@@ -784,12 +785,15 @@ while count>0:
 	
 ##Shuts drone down	
 #vehicle.armed = False
-print "Disarmed"
+
 time.sleep(3)
 print "Done"
+ser.write("Done\n")
 time.sleep(2)
 GPIO.cleanup()
+	
 vehicle.close()	
 	
+ser.close()	
 ##Ending Sim command
 #sitl.stop()

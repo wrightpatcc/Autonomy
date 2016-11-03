@@ -519,10 +519,10 @@ def traveling():
 		print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
 		print " Enroute to Lat:%s, Lon:%s, Alt:%s" % (x,y,z)
 		#time.sleep(3)
-		#print " Check Current Alt:%s" % vehicle.location.global_relative_frame.alt
+		print " Check Current Alt:%s" % vehicle.location.global_relative_frame.alt
 		#print " Heading: {}".format(vehicle.heading)
 		print " Distance to Waypoint: %s" % distance
-		print "Distance to Enemy: %s" % edist
+		print "Distance to Enemy: %s" % between
 		time.sleep(3)
 		
 		#check if in the correct position
@@ -577,16 +577,17 @@ def intercept():
 		end = time.time()
 		tgt = d2-d1
 		vel = (tgt/(end-start))*.9
+		print tgt
 		print trkx
 		print trky
 		print vel
 		tracking(vel*trkx, vel*trky,0,5)
 		
-		#if between > 5:
-			#turn = 15
+		if between > 5:
+			turn = 15
 			#time = 1
-		#elif between<5:
-			#turn = 5
+		elif between<5:
+			turn = 5
 			#time = .5
 		if key == "a": #Change key so that the value here represents the degrees to yaw ex. key -1 is 1 degree left while (+)2 is 2 degrees right
 			conditionyaw(yaw-turn)
@@ -596,7 +597,7 @@ def intercept():
 			#print trkx
 			#print trky
 			print vel
-			#tracking(vel*trkx, vel*trky, 0, 1)
+			tracking(vel*trkx, vel*trky, 0, 1)
 			
 		elif key == "d":
 			conditionyaw(yaw+turn)
@@ -606,13 +607,13 @@ def intercept():
 			#print trkx
 			#print trky
 			#print vel
-			#tracking(vel*trkx, vel*trky, 0, 1)
+			tracking(vel*trkx, vel*trky, 0, 1)
 			print vehicle.location.global_relative_frame.alt	
 		elif key == "w":
 			print " Heading: {}".format(vehicle.heading)
 			accel = accel-.1
 			vel = (tgt/(end-start))*accel
-			#tracking(vel*trkx, vel*trky, 0, 1)
+			tracking(vel*trkx, vel*trky, 0, 1)
 			time.sleep(.5)
 			print vel
 			
@@ -621,30 +622,30 @@ def intercept():
 			print " Heading: {}".format(vehicle.heading)
 			accel = accel+.1
 			vel = (tgt/(end-start))*accel
-			#tracking(vel*trkx, vel*trky, 0, 1)
+			tracking(vel*trkx, vel*trky, 0, 1)
 			time.sleep(.5)
 			print vel
 			
 
 		elif key == "z":
 			#print " Heading: {}".format(vehicle.heading)
-			newLoc = LocationGlobal (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt+1)
+			newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt + 5)
 			gotoGPS(newLoc)
 			#tracking(vel*trkx, vel*trky, 0, 1)
-			time.sleep(5)
-			#print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
-			#tracking(vel*trkx, vel*trky, 0, 1)	
+			time.sleep(2)
+			print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
+			tracking(vel*trkx, vel*trky, 0, 1)	
 			#time.sleep(2)
 			
 
 		elif key == "x":
 			#print " Heading: {}".format(vehicle.heading)
-			newLoc = LocationGlobal (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt-1)
+			newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt-5)
 			gotoGPS(newLoc)
 			#tracking(vel*trkx, vel*trky, 0, 1)
-			time.sleep(5)
-			#print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
-			#tracking(vel*trkx, vel*trky, 0, 1)	
+			time.sleep(2)
+			print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
+			tracking(vel*trkx, vel*trky, 0, 1)	
 			#time.sleep(2)
 		
 		#p leaves function
@@ -660,7 +661,7 @@ def intercept():
 			
 		elif key == "l":
 			#print " Heading: {}".format(vehicle.heading)
-			newLoc = LocationGlobal (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt+1)
+			newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt + 2)
 			gotoGPS(newLoc)
 			print "Engaging!"
 			#tracking(vel*trkx, vel*trky, 0, 1)
@@ -742,6 +743,7 @@ while True:
 	if not vehicle.mode == VehicleMode("GUIDED"):
 		print vehicle.mode
 	if vehicle.mode == VehicleMode("GUIDED"):
+		submode = "goto"
 		if submode == "goto":
 			print "submode is goto"
 			traveling()

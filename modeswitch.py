@@ -1,16 +1,12 @@
 # Ops-Test
 #Code to try and incorporate manual flight
-
-#Ops test, drone will climb to Takeoff alt then wait 5 seconds
-#The pilot should then take control of the drone with remote and fly around a bit 5-10 seconds
-#Pilot should then switch back to "Guided Mode" and drone should return to starting position before landing 
-#Code is typed into killingjoke def... Good Luck          ^
+       
 
 ####################################################
 ##Commander's Challenge Program for Drone Automation
 ##Starts Drone
 ##		Flies to multiple waypoints
-##		Returns to starting location, lands/shutdown - Press "L" or "P" when done flying
+##		Returns to starting location, lands/shutdown - Press "L" to land, "P" to acquire another target
 #####################################
 
 #####################################
@@ -29,25 +25,8 @@ import serial
 
 #####################################
 ## Global Variables and initial values
-global x
-global y	
-global z
-global key
-global vel
-global accel
-global correction_x
-global correction_y
-global correction_z
-global trkx
-global trky
-global distance
-global elat
-global elon
-global ealt
-global submode
-global distance
-global edist
-global between
+global x, y, z, key, vel, accel, correction_x, correction_y, correction_z, trkx, trky
+global distance, elat, elon, ealt, submode, distance, edist, between
 key = 76
 trkx = 7
 trky = 7
@@ -67,10 +46,10 @@ pwm = GPIO.PWM(LEDPin, 50)
 ##########Boots Simulator#################
 
 #print "Start simulator (SITL)"
-sitl = dronekit_sitl.start_default()
-connection_string = sitl.connection_string()
+#sitl = dronekit_sitl.start_default()
+#connection_string = sitl.connection_string()
 #print("Connecting to vehicle on: %s" % (connection_string,))
-vehicle = connect(connection_string, wait_ready=True)
+#vehicle = connect(connection_string, wait_ready=True)
 
 ##########################################
 
@@ -86,7 +65,7 @@ vehicle = connect(connection_string, wait_ready=True)
 
 #vehicle = connect("/dev/ttyUSB0", wait_ready=True, 57600) #Connected via RPi
 
-#vehicle = connect('com9', wait_ready=True, baud =57600) 
+vehicle = connect('com9', wait_ready=True, baud =57600) 
 time.sleep(2)
 print "Autopilot Firmware version: %s" % vehicle.version
 #############################################
@@ -101,9 +80,11 @@ def arm_and_takeoff(aTargetAltitude):
 
     #print "Basic pre-arm checks"
         #Don't try to arm until autopilot is ready
-    while not vehicle.is_armable:
-       print " Waiting for vehicle to initialise..."
-       time.sleep(1)
+    ########################################
+	#need to comment out for real life
+	#while not vehicle.is_armable:
+       #print " Waiting for vehicle to initialise..."
+       #time.sleep(1)
 
     print "Arming motors"
     # Copter should arm in GUIDED mode
@@ -153,6 +134,7 @@ def gotoGPS(location):
 	vehicle.simple_goto(location)
 
 #Sends vehicle home
+############################### DO WE NEED THIS FUNCTION?
 def gotoHome(location):  ###Note: Groundspeed must be set via missionplanner
 	print "I'm coming home!"
 	vehicle.simple_goto(location)
@@ -500,6 +482,9 @@ def send_key(Name, arg1):
 	
 
 
+
+
+ 	
 	
 def traveling():
 	while True:
@@ -509,10 +494,6 @@ def traveling():
 		a = int(float(x - vehicle.location.global_relative_frame.lat))
 		b = int(float(y - vehicle.location.global_relative_frame.lon))		
 		c = int(float(z - vehicle.location.global_relative_frame.alt))
-		#int(a)
-		#int(b)
-		#int(c)
-			
 		newLoc = LocationGlobal (vehicle.location.global_frame.lat + a + correction_x, vehicle.location.global_frame.lon + b + correction_y, vehicle.location.global_frame.alt + c + correction_z)
 		gotoGPS(newLoc)		
 		
@@ -523,31 +504,51 @@ def traveling():
 		#print " Heading: {}".format(vehicle.heading)
 		print " Distance to Waypoint: %s" % distance
 		print "Distance to Enemy: %s" % between
-		time.sleep(3)
+		time.sleep(2)
+		
+		
+		
 		
 		#check if in the correct position
-		if abs(ealt - vehicle.location.global_relative_frame.alt) < 3 and abs(between) < 50:
+		##############################################
+		#need to add the function to determine
+		if abs(ealt - vehicle.location.global_relative_frame.alt) <= 2 and abs(between) < 60 and abs(distance) < 10:
 			print "Going to intercept mode"
 			print "Check Current Alt: %s" % vehicle.location.global_relative_frame.alt
+			#ser.write("Current altitude is: %s\n" % vehicle.location.global_relative_frame.alt)
+			La = vehicle.location.global_relative_frame.lat
+			la = vehicle.location.global_relative_frame.lon
+			Lb = elat
+			lb = elon
+			U = math.cos(math.radians(Lb))*math.sin(math.radians(lb-la))
+			T = math.cos(math.radians(La))*math.sin(math.radians(Lb))-math.sin(math.radians(La))*math.cos(math.radians(Lb))*math.cos(math.radians(lb-la))
+			Bearing = math.atan2(U,T)
+			Hdg = math.degrees(Bearing)
+			conditionyaw(Hdg)
 			submode = "intercept"
 			break
-		x = -35.363261
-		y = 149.1652299
-		z = 16
+		
+		
+		
+		
+		
+		#x = -35.363261
+		#y = 149.1652299
+		#z = 16
 		"""
 		[Name, x, y, z] = rec_full_data("WP")
 
-		print "Latitude is: ", x
-		print "Longitude is: ", y
-		print "Altitude is: ", z
-		print "Type is: ", Name
+		#print "Latitude is: ", x
+		#print "Longitude is: ", y
+		#print "Altitude is: ", z
+		#print "Type is: ", Name
 
 		[Name, elat, elon, ealt] = rec_full_data("EnemyWP")
 
-		print "Enemy Latitude is: ", elat
-		print "Enemy Longitude is: ", elon
-		print "Enemy Altitude is: ", ealt
-		print "Type is: ", Name
+		#print "Enemy Latitude is: ", elat
+		#print "Enemy Longitude is: ", elon
+		#print "Enemy Altitude is: ", ealt
+		#print "Type is: ", Name
 		"""
 				
 		
@@ -555,7 +556,6 @@ def intercept():
 	while True:
 		global x, y, z, key, vel, accel, correction_x, correction_y, correction_z, trkx, trky
 		global distance, edist, elat, elon, ealt, submode, yaw, turn, between
-		
 		
 		print "gimme a key"
 		"""
@@ -581,13 +581,22 @@ def intercept():
 		print trkx
 		print trky
 		print vel
-		tracking(vel*trkx, vel*trky,0,5)
+		#tracking(vel*trkx, vel*trky,0,5)
 		
-		if between > 5:
-			turn = 15
+		#not sure if we want drone to automatically go towards other enemy or make that a manual decision
+		"""
+		if abs(ealt - vehicle.location.global_relative_frame.alt) > 1 and abs(between) > 30:
+			submode = "goto"
+			#ser.write("Acquired new target")
+			break
+		"""
+		
+		
+		#if between > 5:
+			#turn = 15
 			#time = 1
-		elif between<5:
-			turn = 5
+		#elif between<5:
+			#turn = 5
 			#time = .5
 		if key == "a": #Change key so that the value here represents the degrees to yaw ex. key -1 is 1 degree left while (+)2 is 2 degrees right
 			conditionyaw(yaw-turn)
@@ -626,42 +635,45 @@ def intercept():
 			time.sleep(.5)
 			print vel
 			
-
+		#makes the drone fly down 1 m
 		elif key == "z":
 			#print " Heading: {}".format(vehicle.heading)
-			newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt + 5)
+			#newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt + 3)
+			newLoc = LocationGlobal (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt - 3)
 			gotoGPS(newLoc)
+			print "going down"
 			#tracking(vel*trkx, vel*trky, 0, 1)
 			time.sleep(2)
 			print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
-			tracking(vel*trkx, vel*trky, 0, 1)	
+			#ser.write("Current altitude is: %s\n" % vehicle.location.global_relative_frame.alt)
+			#tracking(vel*trkx, vel*trky, 0, 1)	
 			#time.sleep(2)
 			
-
+		#makes the drone fly up 1 m
 		elif key == "x":
 			#print " Heading: {}".format(vehicle.heading)
-			newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt-5)
+			#newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt-3)
+			newLoc = LocationGlobal (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt + 3)
 			gotoGPS(newLoc)
+			
+			print "going up"
 			#tracking(vel*trkx, vel*trky, 0, 1)
 			time.sleep(2)
 			print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
-			tracking(vel*trkx, vel*trky, 0, 1)	
+			#ser.write("Current altitude is: %s\n" % vehicle.location.global_relative_frame.alt)
+			#tracking(vel*trkx, vel*trky, 0, 1)	
 			#time.sleep(2)
 		
 		#p leaves function
 		elif key == "p":
-			break
-		
-		elif key == "k":
 			#Used to track another target
 			#Get WP and enemy's WP
 			submode = "goto"
 			break
-		
 			
 		elif key == "l":
 			#print " Heading: {}".format(vehicle.heading)
-			newLoc = LocationGlobal (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt + 2)
+			newLoc = LocationGlobal (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt + 2)
 			gotoGPS(newLoc)
 			print "Engaging!"
 			#tracking(vel*trkx, vel*trky, 0, 1)
@@ -671,13 +683,24 @@ def intercept():
 			pwm.start(10)
 			time.sleep(10)
 			pwm.stop
+			submode = "goto"
 			break
 			
 		elif key == "/":
 			submode = "landing"
 			break
-		tracking(vel*trkx, vel*trky, 0, 1)
+		#tracking(vel*trkx, vel*trky, 0, 1)
 		print " Current Location: Lat:%s, Lon:%s, Alt:%s" % (vehicle.location.global_relative_frame.lat, vehicle.location.global_relative_frame.lon, vehicle.location.global_relative_frame.alt)
+		#ser.write("Current altitude is: %s\n" % vehicle.location.global_relative_frame.alt)
+		La = vehicle.location.global_relative_frame.lat
+		la = vehicle.location.global_relative_frame.lon
+		Lb = elat
+		lb = elon
+		U = math.cos(math.radians(Lb))*math.sin(math.radians(lb-la))
+		T = math.cos(math.radians(La))*math.sin(math.radians(Lb))-math.sin(math.radians(La))*math.cos(math.radians(Lb))*math.cos(math.radians(lb-la))
+		Bearing = math.atan2(U,T)
+		Hdg = math.degrees(Bearing)
+		conditionyaw(Hdg)
 
 print " Current-Location: Lat:%s, Lon:%s, Alt: %s" % (vehicle.location.global_frame.lat, vehicle.location.global_frame.lon, vehicle.location.global_frame.alt)
 #############################################
@@ -700,10 +723,17 @@ print "Type is: ", Name
 """
 
 
-#x=vehicle.location.global_frame.lat
-#y=vehicle.location.global_frame.lon
-#z=5
+x=vehicle.location.global_frame.lat
+print x
+y=vehicle.location.global_frame.lon
+print y
+z=10
 
+elat = 39.793799
+elon = -84.171434
+ealt = 10
+#values for SIM
+"""
 x = -36.363261
 y = 149.1652299
 z = 10
@@ -711,47 +741,57 @@ z = 10
 elat = -35.363269
 elon = 149.1652292
 ealt = 15
+"""
+
+ 
 ##############################
 ##Sets home point coordinates
-home_lat = int(float(vehicle.location.global_frame.lat))
-home_lon = int(float(vehicle.location.global_frame.lon))
+home_lat = int(float(vehicle.location.global_relative_frame.lat))
+home_lon = int(float(vehicle.location.global_relative_frame.lon))
 home_alt = 5
 
-##############################
-## Transit code
-print "Arming"
-time.sleep(2)
-##arms drone and lifts drone
-arm_and_takeoff(5)
-time.sleep(2)	
+
 
 ################################
 #distance formulas
+#dist to WP
 distance = math.sqrt(((x*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*y)-((100000*vehicle.location.global_relative_frame.lon)))**2+(z-(vehicle.location.global_relative_frame.alt))**2)
-edist = math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2)
+#dist to enemy
+#edist = math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2)
 between = math.sqrt(((elat*100000)-((100000*vehicle.location.global_relative_frame.lat)))**2+((100000*elon)-((100000*vehicle.location.global_relative_frame.lon)))**2+(ealt-(vehicle.location.global_relative_frame.alt))**2)
 #############################
 
 ##This is where the crazy happens
 #killingjoke()
 #time.sleep(3)	
+##############################
+## Transit code
 
+print "Arming"
+time.sleep(.5)
+##arms drone and lifts drone
+arm_and_takeoff(5)
+time.sleep(.5)	
 
 #program start
 submode = "goto"
 while True:
 	if not vehicle.mode == VehicleMode("GUIDED"):
 		print vehicle.mode
+		print "manual"
 	if vehicle.mode == VehicleMode("GUIDED"):
 		submode = "goto"
 		if submode == "goto":
 			print "submode is goto"
+			print "traveling"
 			traveling()
 		if submode == "intercept":
 			print "submode is intercept"
+			print "intercepting"
 			intercept()
 		if submode == "landing":
 			print "submode is landing"
+			print "landing mode"
 			break
 			
 
